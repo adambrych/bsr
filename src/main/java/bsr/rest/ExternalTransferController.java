@@ -37,6 +37,6 @@ public class ExternalTransferController {
         transfer.setAccountTo(to.getAccountNumber());
         transfer.setType(TransferType.EXTERNAL_TRANSFER);
         transferService.save(transfer);
-        return new ResponseEntity<String>("Transfer done",HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.OK);
     }
 }

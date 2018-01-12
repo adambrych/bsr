@@ -29,24 +29,14 @@ public class ExternalTransferController {
             ResponsePayload response = new ResponsePayload("amount", "Amount can't be less or equal zero");
             return new ResponseEntity<ResponsePayload>(response, HttpStatus.BAD_REQUEST);
         }
-        Account from = accountService.getAccount(payload.getSource_account());
-        if(from == null) {
-            ResponsePayload response = new ResponsePayload("nr_konta", "Source account doesn't exist");
-            return new ResponseEntity<ResponsePayload>(response, HttpStatus.NOT_FOUND);
-        }
-        if(payload.getAmount()>from.getBalance()){
-            ResponsePayload response = new ResponsePayload("amount", "Amount can't be greater than source account balance");
-            return new ResponseEntity<ResponsePayload>(response, HttpStatus.BAD_REQUEST);
-        }
         to.setBalance(to.getBalance() + payload.getAmount());
         accountService.saveAccount(to);
-        from.setBalance(from.getBalance() - payload.getAmount());
         Transfer transfer = new Transfer();
         transfer.setAccountFrom(payload.getSource_account());
         transfer.setAmount(payload.getAmount());
         transfer.setAccountTo(to.getAccountNumber());
         transfer.setType(TransferType.EXTERNAL_TRANSFER);
         transferService.save(transfer);
-        return new ResponseEntity<Account>(from, HttpStatus.OK);
+        return new ResponseEntity<String>("Transfer done",HttpStatus.OK);
     }
 }

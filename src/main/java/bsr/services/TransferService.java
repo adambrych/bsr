@@ -8,4 +8,5 @@ public interface TransferService {
     void saveInternalTransfer(String from, String to, long amount) throws AccountException;
     void savePayment(String from, long amount) throws AccountException;
     void saveWithdrawal(String from, long amount) throws AccountException;
+    void saveExternalTransfer(String from, String to, long amount, String name, String title) throws AccountException;
 }

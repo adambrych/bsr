@@ -1,5 +1,7 @@
 package bsr.model;
 
+
+import https.www_bank_com.account.TransferForResponse;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -25,6 +27,15 @@ public class Transfer {
         this.accountTo = to;
         this.balance = balance;
         this.type = type;
+    }
+
+    public TransferForResponse toResponse(){
+        TransferForResponse transferForResponse = new TransferForResponse();
+        transferForResponse.setBalance(balance);
+        transferForResponse.setAccountFrom(accountFrom);
+        transferForResponse.setAccountTo(accountTo);
+        transferForResponse.setType(type.toString());
+        return transferForResponse;
     }
 
     public Integer getId() {

@@ -1,6 +1,23 @@
 package bsr.model;
 
 
-public class Bank {
+import bsr.exception.AccountException;
+import bsr.exception.ServiceFault;
 
+import java.math.BigInteger;
+
+public class Bank {
+    private static final String branchNumber = "00117325";
+    private static final String PL = "2521";
+
+    public static void checkControlSum(String accountNumber) throws AccountException {
+        String firstTwoChars = accountNumber.substring(0, 2);
+        accountNumber = accountNumber.substring(2);
+        accountNumber = accountNumber + PL + firstTwoChars;
+        BigInteger number = new BigInteger(accountNumber);
+        BigInteger mod = number.mod(new BigInteger("97"));
+        if(!mod.equals(1))
+            throw new AccountException("ERROR", new ServiceFault("Control sum", "Control sum is wrong"));
+
+    }
 }

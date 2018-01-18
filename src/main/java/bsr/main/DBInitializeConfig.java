@@ -18,7 +18,7 @@ public class DBInitializeConfig {
     private static final String ACCOUNT_STATEMENT = "CREATE TABLE IF NOT EXISTS accounts (id INTEGER PRIMARY KEY, " +
             "accountNumber varchar(255), balance Integer)";
     private static final String LOGIN_STATEMENT = "CREATE TABLE IF NOT EXISTS credentials (id INTEGER PRIMARY KEY, " +
-            "name varchar(255), password varchar(255), account varchar(255))";
+            "login varchar(255) UNIQUE , password varchar(255))";
 
     @Autowired
     private DataSource dataSource;

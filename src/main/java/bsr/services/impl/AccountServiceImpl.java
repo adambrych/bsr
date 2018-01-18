@@ -6,6 +6,7 @@ import bsr.exception.AccountException;
 import bsr.exception.ServiceFault;
 import bsr.model.Account;
 import bsr.model.Transfer;
+import bsr.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import bsr.services.AccountService;
@@ -37,5 +38,10 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void saveAccount(Account account) {
         accountDao.save(account);
+    }
+
+    @Override
+    public void createAccount(User user) {
+
     }
 }

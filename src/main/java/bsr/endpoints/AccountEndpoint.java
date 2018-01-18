@@ -1,17 +1,21 @@
 package bsr.endpoints;
 
 import bsr.exception.AccountException;
+import bsr.model.Bank;
 import bsr.model.Transfer;
+import bsr.model.User;
 import bsr.services.AccountService;
-import bsr.soap.account.CreateBankAccount;
-import bsr.soap.account.GetAccountHistory;
+
+import bsr.services.UserService;
+import https.www_bank_com.account.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
-import bsr.soap.account.CreateAccount;
 
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Endpoint
@@ -22,27 +26,38 @@ public class AccountEndpoint {
     AccountService accountService;
 
     @Autowired
+    UserService userService;
+
+    @Autowired
     public AccountEndpoint(){
 
     }
 
-    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "CreateAccount")
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "LoginRequest")
     @ResponsePayload
-    public String createAccount(@RequestPayload CreateAccount account) throws AccountException {
-
-        return "done";
+    public TokenResponse login(@RequestPayload LoginRequest account) throws AccountException {
+        User user = userService.getUser(account.getLogin(), account.getPassword());
+        TokenResponse response = new TokenResponse();
+        response.setToken(user.getLogin());
+        return response;
     }
 
-    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "CreateBankAccount")
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "AccountHistoryRequest")
     @ResponsePayload
-    public String createBankAccount(@RequestPayload CreateBankAccount account) throws AccountException {
-
-        return "done";
+    public AccountHistoryResponse getAccountHistory(@RequestPayload AccountHistoryRequest accountHistory) throws AccountException {
+        userService.getUser(accountHistory.getToken());
+        Bank.checkControlSum(accountHistory.getAccountNumber());
+        List<Transfer> transfers = accountService.getAccountHistory(accountHistory.getAccountNumber());
+        AccountHistoryResponse response = new AccountHistoryResponse();
+        response.setAccountHistory(toResponse(transfers));
+        return response;
     }
 
-    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getAccountHistory")
-    @ResponsePayload
-    public List<Transfer> getAccountHistory(@RequestPayload GetAccountHistory accountHistory) throws AccountException {
-        return accountService.getAccountHistory(accountHistory.getAccountNumber());
+    private List<TransferForResponse> toResponse(List<Transfer> transfers){
+        List<TransferForResponse> response = new ArrayList<TransferForResponse>();
+        for(Transfer transfer : transfers){
+            response.add(transfer.toResponse());
+        }
+        return response;
     }
 }

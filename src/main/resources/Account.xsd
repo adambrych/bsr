@@ -1,7 +1,16 @@
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="bsr/soap/account" elementFormDefault="qualified">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="https://www.bank.com/account"
+               targetNamespace="https://www.bank.com/account" elementFormDefault="qualified">
 
-    <xs:element name="createAccount">
+    <xs:complexType name="TransferForResponse">
+        <xs:sequence>
+            <xs:element name="balance" type="xs:long"/>
+            <xs:element name="accountFrom" type="xs:string"/>
+            <xs:element name="accountTo" type="xs:string"/>
+            <xs:element name="type" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="LoginRequest">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="login" type="xs:string"/>
@@ -10,18 +19,35 @@
         </xs:complexType>
     </xs:element>
 
-    <xs:element name="createBankAccount">
+    <xs:element name="AccountHistoryRequest">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="userId" type="xs:integer"/>
+                <xs:element name="token" type="xs:string"/>
+                <xs:element name="accountNumber" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
 
-    <xs:element name="getAccountHistory">
+    <xs:element name="AccountResponse">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="accountNumber" type="xs:string"/>
+                <xs:element name="message" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="TokenResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="token" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="AccountHistoryResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="AccountHistory" type="tns:TransferForResponse" maxOccurs="unbounded"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

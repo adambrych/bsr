@@ -7,14 +7,17 @@ import bsr.exception.ServiceFault;
 import bsr.model.Account;
 import bsr.model.Transfer;
 import bsr.model.TransferType;
+import bsr.rest.RequestPayload;
+import bsr.rest.ResponsePayload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import bsr.services.TransferService;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class TransferServiceImpl implements TransferService{
 
-    private static final String ERROR = "ERROR";
+    private static final String ERROR = "ERROR2";
     private static final String MESSAGE = "404 Not Found";
     private static final String DESCRIPTION = "Account doesn't exist";
     private static final String MESSAGE_AMOUNT = "Bad Request";
@@ -61,6 +64,20 @@ public class TransferServiceImpl implements TransferService{
         accountDao.save(accountFrom);
         Transfer transfer = new Transfer(accountFrom.getAccountNumber(), "", amount, accountFrom.getBalance(), TransferType.PAYMENT);
         transferDao.save(transfer);
+    }
+
+    @Override
+    public void saveExternalTransfer(String from, String to, long amount, String name, String title) throws AccountException {
+        Account accountFrom = getAccount(from);
+        final String uri = "http://localhost:8080/accounts/" + to + "/history";
+        RequestPayload request = new RequestPayload();
+        request.setAmount(amount);
+        request.setSource_account(from);
+        request.setName(name);
+        request.setTitle(title);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponsePayload result = restTemplate.getForObject(uri, ResponsePayload.class, request);
+        System.out.println(result);
     }
 
     private Account getAccount(String number) throws AccountException {

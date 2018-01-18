@@ -1,7 +1,10 @@
 package bsr.model;
 
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 
+@NoArgsConstructor
 @Entity
 @Table(name = "transfers")
 public class Transfer {
@@ -15,6 +18,14 @@ public class Transfer {
     private long amount;
     private long balance;
     private TransferType type;
+
+    public Transfer(String from, String to, long amount,long balance, TransferType type){
+        this.amount = amount;
+        this.accountFrom = from;
+        this.accountTo = to;
+        this.balance = balance;
+        this.type = type;
+    }
 
     public Integer getId() {
         return id;

@@ -1,5 +1,6 @@
 package bsr.rest;
 
+import bsr.exception.AccountException;
 import bsr.model.Account;
 import bsr.model.Transfer;
 import bsr.model.TransferType;
@@ -20,8 +21,10 @@ public class ExternalTransferController {
 
     @RequestMapping(value = "/accounts/{accountNumber}/history", method = RequestMethod.POST)
     public ResponseEntity externalTransfer(@PathVariable String accountNumber, @RequestBody RequestPayload payload) {
-        Account to = accountService.getAccount(accountNumber);
-        if(to == null) {
+        Account to;
+        try {
+            to = accountService.getAccount(accountNumber);
+        } catch (AccountException e) {
             ResponsePayload response = new ResponsePayload("nr_konta", "Destiny account doesn't exist");
             return new ResponseEntity<ResponsePayload>(response, HttpStatus.NOT_FOUND);
         }

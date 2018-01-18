@@ -1,6 +1,7 @@
 package bsr.endpoints;
 
 import bsr.exception.AccountException;
+import bsr.services.TransferService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
@@ -16,6 +17,8 @@ public class TransferEndpoint
 {
     private static final String NAMESPACE_URI = "https://www.bank.com/transfer";
 
+    @Autowired
+    TransferService transferService;
 
     @Autowired
     public TransferEndpoint() {
@@ -24,12 +27,7 @@ public class TransferEndpoint
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "InternalTransfer")
     @ResponsePayload
     public String internalTransfer(@RequestPayload InternalTransfer transfer) throws AccountException {
-        /*Account from = DataBase.getAccount(transfer.getAccountFrom());
-        Account to = DataBase.getAccount(transfer.getAccountTo());
-        checkTransfer(transfer.getAmount(), from, to, transfer.getAccountFrom(), transfer.getAccountTo());
-        Transfer newTransfer = new Transfer(from, to, transfer.getAmount(), TransferType.INTERNAL_TRANSFER);
-        DataBase.saveTransfer(newTransfer);
-        DataBase.updateAccount(from);*/
+        transferService.saveInternalTransfer(transfer.getAccountFrom(), transfer.getAccountFrom(), transfer.getAmount());
         return "done";
     }
 
@@ -43,50 +41,14 @@ public class TransferEndpoint
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "Payment")
     @ResponsePayload
     public String payment(@RequestPayload Payment transfer) throws AccountException {
-        /*Account from = DataBase.getAccount(transfer.getAccountFrom());
-        checkTransfer(transfer.getAmount(), from, transfer.getAccountFrom(), TransferType.PAYMENT);
-        Transfer newTransfer = new Transfer(from, transfer.getAmount(), TransferType.INTERNAL_TRANSFER);
-        DataBase.saveTransfer(newTransfer);
-        DataBase.updateAccount(from);*/
+        transferService.savePayment(transfer.getAccountFrom(), transfer.getAmount());
         return "done";
     }
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "Withdrawal")
     @ResponsePayload
     public String withdrawal(@RequestPayload Withdrawal transfer) throws AccountException {
-        /*Account from = DataBase.getAccount(transfer.getAccountFrom());
-        checkTransfer(transfer.getAmount(), from, transfer.getAccountFrom(), TransferType.WITHDRAWAL);
-        Transfer newTransfer = new Transfer(from, transfer.getAmount(), TransferType.INTERNAL_TRANSFER);
-        DataBase.saveTransfer(newTransfer);
-        DataBase.updateAccount(from);*/
+        transferService.saveWithdrawal(transfer.getAccountFrom(), transfer.getAmount());
         return "done";
     }
-
-    /*private void checkTransfer(long amount, Account from, Account to, String fromNumber, String toNumber) throws AccountException {
-        checkAccount(from, fromNumber);
-        checkAccount(to, toNumber);
-        checkAmount(amount);
-        checkBalance(from, amount);
-    }
-
-    private void checkTransfer(long amount, Account from, String fromNumber, TransferType type) throws AccountException {
-        checkAccount(from, fromNumber);
-        checkAmount(amount);
-        if(type == TransferType.WITHDRAWAL)
-            checkBalance(from, amount);
-    }
-
-    private void checkAccount(Account account, String accountNumber) throws AccountException {
-        if(account == null)
-            throw new AccountException("ERROR", new ServiceFault("NOT FOUND", "Account with number " + accountNumber + " not found."));
-    }
-
-    private void checkAmount(long amount) throws AccountException {
-        if(Transfer.isAmountMinus(amount))
-            throw new AccountException("ERROR", new ServiceFault("NOT FOUND", "Amount can't be minus"));
-    }
-    private void checkBalance(Account account, long amount) throws AccountException {
-        if(Transfer.compareAmountWithBalance(account.getBalance(), amount))
-            throw new AccountException("ERROR", new ServiceFault("NOT FOUND", "Amount is bigger than account balance: " + account.getBalance()));
-    }*/
 }

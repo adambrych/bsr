@@ -1,6 +1,7 @@
 package bsr.endpoints;
 
 import bsr.exception.AccountException;
+import bsr.model.Bank;
 import bsr.model.User;
 import bsr.services.TransferService;
 import bsr.services.UserService;
@@ -30,7 +31,8 @@ public class TransferEndpoint
     @ResponsePayload
     public TransferResponse internalTransfer(@RequestPayload InternalTransfer transfer) throws AccountException {
         User user = userService.getUser(transfer.getToken());
-        //Bank.checkControlSum(accountHistory.getAccountNumber());
+        Bank.checkControlSum(transfer.getAccountFrom());
+        Bank.checkControlSum(transfer.getAccountTo());
         transferService.saveInternalTransfer(transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount(),user);
         TransferResponse response = new TransferResponse();
         response.setMessage("done");
@@ -41,7 +43,8 @@ public class TransferEndpoint
     @ResponsePayload
     public TransferResponse externalTransfer(@RequestPayload ExternalTransfer transfer) throws AccountException {
         User user = userService.getUser(transfer.getToken());
-        //Bank.checkControlSum(accountHistory.getAccountNumber());
+        Bank.checkControlSum(transfer.getAccountFrom());
+        Bank.checkControlSum(transfer.getAccountTo());
         transferService.saveExternalTransfer(transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount(), transfer.getName(), transfer.getTitle(), user);
         TransferResponse response = new TransferResponse();
         response.setMessage("done");
@@ -52,7 +55,7 @@ public class TransferEndpoint
     @ResponsePayload
     public TransferResponse payment(@RequestPayload Payment transfer) throws AccountException {
         User user = userService.getUser(transfer.getToken());
-        //Bank.checkControlSum(accountHistory.getAccountNumber());
+        Bank.checkControlSum(transfer.getAccountFrom());
         transferService.savePayment(transfer.getAccountFrom(), transfer.getAmount(), user);
         TransferResponse response = new TransferResponse();
         response.setMessage("done");
@@ -63,7 +66,7 @@ public class TransferEndpoint
     @ResponsePayload
     public TransferResponse withdrawal(@RequestPayload Withdrawal transfer) throws AccountException {
         User user = userService.getUser(transfer.getToken());
-        //Bank.checkControlSum(accountHistory.getAccountNumber());
+        Bank.checkControlSum(transfer.getAccountFrom());
         transferService.saveWithdrawal(transfer.getAccountFrom(), transfer.getAmount(), user);
         TransferResponse response = new TransferResponse();
         response.setMessage("done");

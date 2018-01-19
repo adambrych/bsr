@@ -1,6 +1,7 @@
 package bsr.endpoints;
 
 import bsr.exception.AccountException;
+import bsr.model.Bank;
 import bsr.model.Transfer;
 import bsr.model.User;
 import bsr.services.AccountService;
@@ -45,7 +46,7 @@ public class AccountEndpoint {
     @ResponsePayload
     public AccountHistoryResponse getAccountHistory(@RequestPayload AccountHistoryRequest accountHistory) throws AccountException {
         User user = userService.getUser(accountHistory.getToken());
-    //    Bank.checkControlSum(accountHistory.getAccountNumber());
+        Bank.checkControlSum(accountHistory.getAccountNumber());
         List<Transfer> transfers = accountService.getAccountHistory(accountHistory.getAccountNumber(), user);
         AccountHistoryResponse response = new AccountHistoryResponse();
         response.setAccountHistory(toResponse(transfers));

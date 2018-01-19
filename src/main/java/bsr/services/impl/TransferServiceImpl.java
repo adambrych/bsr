@@ -9,6 +9,8 @@ import bsr.model.Transfer;
 import bsr.model.TransferType;
 import bsr.model.User;
 import bsr.rest.ResponsePayload;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -16,6 +18,8 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import bsr.services.TransferService;
 import org.springframework.web.client.RestTemplate;
+
+import java.io.*;
 
 
 @Service
@@ -27,6 +31,7 @@ public class TransferServiceImpl implements TransferService{
     private static final String MESSAGE_AMOUNT = "Bad Request";
     private static final String DESCRIPTION_LOWER_THAN_0 = "Amount can't be lower than 0";
     private static final String DESCRIPTION_AMOUNT_BALANCE = "Amount can't be greater than account balance";
+    private static final String FILENAME = "Banki.csv";
 
     @Autowired
     TransferDao transferDao;
@@ -76,7 +81,10 @@ public class TransferServiceImpl implements TransferService{
     public void saveExternalTransfer(String from, String to, long amount, String name, String title, User user) throws AccountException {
         Account accountFrom = getAccount(from, user);
         checkTransfer(accountFrom, amount);
-        final String uri = "http://localhost:8080/accounts/" + to + "/history";
+        String url = readCsv(to);
+        if(url.equals(""))
+            throw new AccountException("ERROR", new ServiceFault("Bad Request", "Can't find external bank using destination account"));
+        final String uri = url + "/accounts/" + to + "/history";
         JSONObject request = new JSONObject()
                 .put("source_account", from)
                 .put("amount", amount)
@@ -128,5 +136,27 @@ public class TransferServiceImpl implements TransferService{
             throw new AccountException(ERROR, new ServiceFault(MESSAGE_AMOUNT, DESCRIPTION_LOWER_THAN_0));
         if(from.getBalance() < amount)
             throw new AccountException(ERROR, new ServiceFault(MESSAGE_AMOUNT, DESCRIPTION_AMOUNT_BALANCE));
+    }
+
+    private String readCsv(String accountTo){
+        String findUrl = "";
+        try {
+            Reader in = new BufferedReader(new InputStreamReader(
+                    this.getClass().getResourceAsStream("/" + FILENAME)));
+            Iterable<CSVRecord> records = null;
+            records = CSVFormat.RFC4180.withHeader("ID Banku", "URL", "przykładowe konto").parse(in);
+
+            for (CSVRecord record : records) {
+
+                String id = record.get("ID Banku");
+                String url = record.get("URL");
+                String account = record.get("przykładowe konto");
+                if(id.equals(accountTo.substring(2, 10)))
+                    findUrl = url;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return findUrl;
     }
 }

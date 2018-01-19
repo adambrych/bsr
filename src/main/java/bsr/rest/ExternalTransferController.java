@@ -26,6 +26,8 @@ public class ExternalTransferController {
             Bank.checkControlSum(accountNumber);
         } catch (AccountException e) {
             e.printStackTrace();
+            ResponsePayload response = new ResponsePayload("accountNumber", "Destiny account control sum not valid");
+            return new ResponseEntity<ResponsePayload>(response, HttpStatus.BAD_REQUEST);
         }
         Account to;
         try {

@@ -16,5 +16,11 @@ public interface TransferDao extends CrudRepository<Transfer, Long> {
      * @param accountFrom
      * @return
      */
-    List<Transfer> findTransferByAccountFromOrAccountTo(String accountFrom);
+    List<Transfer> findTransferByAccountFrom(String accountFrom);
+    /**
+     * find transfer by account number. Get historu
+     * @param accountTo
+     * @return
+     */
+    List<Transfer> findTransferByAccountTo(String accountTo);
 }

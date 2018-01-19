@@ -16,7 +16,7 @@ public class Bank {
         accountNumber = accountNumber + PL + firstTwoChars;
         BigInteger number = new BigInteger(accountNumber);
         BigInteger mod = number.mod(new BigInteger("97"));
-        if(!mod.equals(1))
+        if(!mod.equals(new BigInteger("1")))
             throw new BankException("ERROR", new ServiceFault("Control sum", "Control sum is wrong"));
 
     }

@@ -42,6 +42,14 @@ public class Transfer {
         return transferForResponse;
     }
 
+    public long getBalance() {
+        return balance;
+    }
+
+    public void setBalance(long balance) {
+        this.balance = balance;
+    }
+
     public Integer getId() {
         return id;
     }

@@ -41,7 +41,9 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<Transfer> getAccountHistory(String accountNumber, User user) throws BankException {
         Account account = getAccount(accountNumber, user);
-        return transferDao.findTransferByAccountFromOrAccountTo(account.getAccountNumber());
+        List<Transfer> transfers = transferDao.findTransferByAccountFrom(account.getAccountNumber());
+        transfers.addAll(transferDao.findTransferByAccountTo(accountNumber));
+        return transfers;
     }
 
     @Override
@@ -49,8 +51,4 @@ public class AccountServiceImpl implements AccountService {
         accountDao.save(account);
     }
 
-    @Override
-    public void createAccount(User user) {
-
-    }
 }

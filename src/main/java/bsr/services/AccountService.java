@@ -42,5 +42,4 @@ public interface AccountService {
      * @param account
      */
     void saveAccount(Account account);
-    void createAccount(User user);
 }

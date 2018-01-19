@@ -9,6 +9,7 @@ import bsr.model.Transfer;
 import bsr.model.TransferType;
 import bsr.model.User;
 import bsr.rest.ResponsePayload;
+import bsr.services.AccountService;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.json.JSONObject;
@@ -60,7 +61,7 @@ public class TransferServiceImpl implements TransferService{
     public void savePayment(String from, long amount, User user) throws BankException {
         Account accountFrom = getAccount(from, user);
         checkTransfer(accountFrom, amount);
-        changeBalance(accountFrom, amount);
+        changeBalanceByPayment(accountFrom, amount);
         accountDao.save(accountFrom);
         Transfer transfer = new Transfer(accountFrom.getAccountNumber(), "", amount, accountFrom.getBalance(), TransferType.PAYMENT);
         transferDao.save(transfer);
@@ -96,7 +97,18 @@ public class TransferServiceImpl implements TransferService{
 
         RestTemplateBuilder builder = new RestTemplateBuilder();
         RestTemplate restTemplate = builder.basicAuthorization("admin", "admin").build();
-        restTemplate.exchange(uri, HttpMethod.POST,  new HttpEntity<String>(request.toString(), headers),  ResponsePayload.class);
+        ResponseEntity<ResponsePayload> response = restTemplate.exchange(uri, HttpMethod.POST,  new HttpEntity<String>(request.toString(), headers),  ResponsePayload.class);
+        if(response.getStatusCode() == HttpStatus.CREATED){
+            accountFrom.setBalance(accountFrom.getBalance() - amount);
+            accountDao.save(accountFrom);
+            Transfer transfer = new Transfer();
+            transfer.setType(TransferType.EXTERNAL_TRANSFER);
+            transfer.setAccountTo(to);
+            transfer.setAccountFrom(from);
+            transfer.setAmount(amount);
+            transfer.setBalance(accountFrom.getBalance());
+            transferDao.save(transfer);
+        }
         //ResponsePayload result = restTemplate.getForObject(uri, ResponsePayload.class, request, headers);
 
     }
@@ -118,10 +130,6 @@ public class TransferServiceImpl implements TransferService{
     private void changeBalance(Account from, Account to, long amount){
         from.setBalance(from.getBalance() - amount);
         to.setBalance(to.getBalance() + amount);
-    }
-
-    private void changeBalance(Account from, long amount){
-        from.setBalance(from.getBalance() - amount);
     }
 
     private void changeBalanceByPayment(Account from, long amount){

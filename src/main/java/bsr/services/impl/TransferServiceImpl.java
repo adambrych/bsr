@@ -140,7 +140,7 @@ public class TransferServiceImpl implements TransferService{
     }
 
     private void checkTransfer(Account from, long amount) throws BankException {
-        if(amount < 0)
+        if(amount <= 0)
             throw new BankException(ERROR, new ServiceFault(MESSAGE_AMOUNT, DESCRIPTION_LOWER_THAN_0));
         if(from.getBalance() < amount)
             throw new BankException(ERROR, new ServiceFault(MESSAGE_AMOUNT, DESCRIPTION_AMOUNT_BALANCE));

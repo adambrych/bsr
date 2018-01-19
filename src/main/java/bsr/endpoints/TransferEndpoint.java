@@ -1,6 +1,7 @@
 package bsr.endpoints;
 
 import bsr.exception.BankException;
+import bsr.exception.ServiceFault;
 import bsr.model.Bank;
 import bsr.model.User;
 import bsr.services.TransferService;
@@ -39,9 +40,11 @@ public class TransferEndpoint
     @ResponsePayload
     public TransferResponse internalTransfer(@RequestPayload InternalTransfer transfer) throws BankException {
         User user = userService.getUser(transfer.getToken());
+        if(transfer.getAccountFrom().equals(transfer.getAccountTo()))
+            throw new BankException("ERROR", new ServiceFault("Bad request", "Accounts can't be the same"));
         Bank.checkControlSum(transfer.getAccountFrom());
         Bank.checkControlSum(transfer.getAccountTo());
-        transferService.saveInternalTransfer(transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount(),user);
+        transferService.saveInternalTransfer(transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount(), transfer.getTitle(), user);
         TransferResponse response = new TransferResponse();
         response.setMessage("done");
         return response;
@@ -59,6 +62,8 @@ public class TransferEndpoint
         User user = userService.getUser(transfer.getToken());
         Bank.checkControlSum(transfer.getAccountFrom());
         Bank.checkControlSum(transfer.getAccountTo());
+        if(transfer.getAccountFrom().equals(transfer.getAccountTo()))
+            throw new BankException("ERROR", new ServiceFault("Bad request", "Accounts can't be the same"));
         transferService.saveExternalTransfer(transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount(), transfer.getName(), transfer.getTitle(), user);
         TransferResponse response = new TransferResponse();
         response.setMessage("done");

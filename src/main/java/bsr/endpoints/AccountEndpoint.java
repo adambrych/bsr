@@ -48,6 +48,7 @@ public class AccountEndpoint {
         User user = userService.getUser(account.getLogin(), account.getPassword());
         TokenResponse response = new TokenResponse();
         response.setToken(user.getLogin());
+
         return response;
     }
 

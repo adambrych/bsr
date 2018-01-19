@@ -23,14 +23,17 @@ public class Transfer {
     @Column
     private long balance;
     @Column
+    private String title;
+    @Column
     private TransferType type;
 
-    public Transfer(String from, String to, long amount,long balance, TransferType type){
+    public Transfer(String from, String to, long amount,long balance, String title, TransferType type){
         this.amount = amount;
         this.accountFrom = from;
         this.accountTo = to;
         this.balance = balance;
         this.type = type;
+        this.title = title;
     }
 
     public TransferForResponse toResponse(){
@@ -38,8 +41,18 @@ public class Transfer {
         transferForResponse.setBalance(balance);
         transferForResponse.setAccountFrom(accountFrom);
         transferForResponse.setAccountTo(accountTo);
+        transferForResponse.setAmount(amount);
         transferForResponse.setType(type.getDescription());
+        transferForResponse.setTitle(title);
         return transferForResponse;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public long getBalance() {

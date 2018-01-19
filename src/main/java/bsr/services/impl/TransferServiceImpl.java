@@ -45,7 +45,7 @@ public class TransferServiceImpl implements TransferService{
     }
 
     @Override
-    public void saveInternalTransfer(String from, String to, long amount, User user) throws BankException {
+    public void saveInternalTransfer(String from, String to, long amount, String title, User user) throws BankException {
 
         Account accountFrom = getAccount(from, user);
         Account accountTo = getAccount(to);
@@ -53,17 +53,18 @@ public class TransferServiceImpl implements TransferService{
         changeBalance(accountFrom, accountTo, amount);
         accountDao.save(accountFrom);
         accountDao.save(accountTo);
-        Transfer transfer = new Transfer(accountFrom.getAccountNumber(), accountTo.getAccountNumber(), amount, accountFrom.getBalance(), TransferType.INTERNAL_TRANSFER);
+        Transfer transfer = new Transfer(accountFrom.getAccountNumber(), accountTo.getAccountNumber(), amount, accountFrom.getBalance(), title, TransferType.INTERNAL_TRANSFER);
         transferDao.save(transfer);
     }
 
     @Override
     public void savePayment(String from, long amount, User user) throws BankException {
         Account accountFrom = getAccount(from, user);
-        checkTransfer(accountFrom, amount);
+        if(amount <= 0)
+            throw new BankException(ERROR, new ServiceFault(MESSAGE_AMOUNT, DESCRIPTION_LOWER_THAN_0));
         changeBalanceByPayment(accountFrom, amount);
         accountDao.save(accountFrom);
-        Transfer transfer = new Transfer(accountFrom.getAccountNumber(), "", amount, accountFrom.getBalance(), TransferType.PAYMENT);
+        Transfer transfer = new Transfer(accountFrom.getAccountNumber(), "", amount, accountFrom.getBalance(), "", TransferType.PAYMENT);
         transferDao.save(transfer);
     }
 
@@ -73,7 +74,7 @@ public class TransferServiceImpl implements TransferService{
         checkTransfer(accountFrom, amount);
         changeBalanceByWithdrawal(accountFrom, amount);
         accountDao.save(accountFrom);
-        Transfer transfer = new Transfer(accountFrom.getAccountNumber(), "", amount, accountFrom.getBalance(), TransferType.WITHDRAWAL);
+        Transfer transfer = new Transfer(accountFrom.getAccountNumber(), "", amount, accountFrom.getBalance(), "", TransferType.WITHDRAWAL);
         transferDao.save(transfer);
     }
 
@@ -152,13 +153,12 @@ public class TransferServiceImpl implements TransferService{
             Reader in = new BufferedReader(new InputStreamReader(
                     this.getClass().getResourceAsStream("/" + FILENAME)));
             Iterable<CSVRecord> records = null;
-            records = CSVFormat.RFC4180.withHeader("ID Banku", "URL", "przykładowe konto").parse(in);
+            records = CSVFormat.RFC4180.withHeader("ID Banku", "URL").parse(in);
 
             for (CSVRecord record : records) {
 
                 String id = record.get("ID Banku");
                 String url = record.get("URL");
-                String account = record.get("przykładowe konto");
                 if(id.equals(accountTo.substring(2, 10)))
                     findUrl = url;
             }

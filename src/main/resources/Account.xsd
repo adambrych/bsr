@@ -4,9 +4,11 @@
     <xs:complexType name="TransferForResponse">
         <xs:sequence>
             <xs:element name="balance" type="xs:long"/>
+            <xs:element name="amount" type="xs:long"/>
             <xs:element name="accountFrom" type="xs:string"/>
             <xs:element name="accountTo" type="xs:string"/>
             <xs:element name="type" type="xs:string"/>
+            <xs:element name="title" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
 

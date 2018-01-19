@@ -8,6 +8,7 @@ import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -23,6 +24,8 @@ public class DBInitializeConfig {
     private static final String LOGIN_STATEMENT = "CREATE TABLE IF NOT EXISTS credentials (id INTEGER PRIMARY KEY, " +
             "login varchar(255) UNIQUE , password varchar(255))";
 
+
+    @Qualifier("dataSource")
     @Autowired
     private DataSource dataSource;
 

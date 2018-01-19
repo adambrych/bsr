@@ -20,6 +20,8 @@
                 <xs:element name="accountFrom" type="xs:string"/>
                 <xs:element name="accountTo" type="xs:string"/>
                 <xs:element name="amount" type="xs:long"/>
+                <xs:element name="name" type="xs:string"/>
+                <xs:element name="title" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

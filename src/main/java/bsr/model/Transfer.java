@@ -14,11 +14,15 @@ public class Transfer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
+    @Column
     private String accountFrom;
+    @Column
     private String accountTo;
+    @Column
     private long amount;
+    @Column
     private long balance;
+    @Column
     private TransferType type;
 
     public Transfer(String from, String to, long amount,long balance, TransferType type){
@@ -34,7 +38,7 @@ public class Transfer {
         transferForResponse.setBalance(balance);
         transferForResponse.setAccountFrom(accountFrom);
         transferForResponse.setAccountTo(accountTo);
-        transferForResponse.setType(type.toString());
+        transferForResponse.setType(type.getDescription());
         return transferForResponse;
     }
 

@@ -7,12 +7,16 @@ import bsr.exception.ServiceFault;
 import bsr.model.Account;
 import bsr.model.Transfer;
 import bsr.model.TransferType;
-import bsr.rest.RequestPayload;
+import bsr.model.User;
 import bsr.rest.ResponsePayload;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import bsr.services.TransferService;
 import org.springframework.web.client.RestTemplate;
+
 
 @Service
 public class TransferServiceImpl implements TransferService{
@@ -35,8 +39,9 @@ public class TransferServiceImpl implements TransferService{
     }
 
     @Override
-    public void saveInternalTransfer(String from, String to, long amount) throws AccountException {
-        Account accountFrom = getAccount(from);
+    public void saveInternalTransfer(String from, String to, long amount, User user) throws AccountException {
+
+        Account accountFrom = getAccount(from, user);
         Account accountTo = getAccount(to);
         checkTransfer(accountFrom, amount);
         changeBalance(accountFrom, accountTo, amount);
@@ -47,8 +52,8 @@ public class TransferServiceImpl implements TransferService{
     }
 
     @Override
-    public void savePayment(String from, long amount) throws AccountException {
-        Account accountFrom = getAccount(from);
+    public void savePayment(String from, long amount, User user) throws AccountException {
+        Account accountFrom = getAccount(from, user);
         checkTransfer(accountFrom, amount);
         changeBalance(accountFrom, amount);
         accountDao.save(accountFrom);
@@ -57,27 +62,42 @@ public class TransferServiceImpl implements TransferService{
     }
 
     @Override
-    public void saveWithdrawal(String from, long amount) throws AccountException {
-        Account accountFrom = getAccount(from);
+    public void saveWithdrawal(String from, long amount, User user) throws AccountException {
+        Account accountFrom = getAccount(from, user);
         checkTransfer(accountFrom, amount);
-        changeBalanceByPayment(accountFrom, amount);
+        changeBalanceByWithdrawal(accountFrom, amount);
         accountDao.save(accountFrom);
-        Transfer transfer = new Transfer(accountFrom.getAccountNumber(), "", amount, accountFrom.getBalance(), TransferType.PAYMENT);
+        Transfer transfer = new Transfer(accountFrom.getAccountNumber(), "", amount, accountFrom.getBalance(), TransferType.WITHDRAWAL);
         transferDao.save(transfer);
     }
 
+
     @Override
-    public void saveExternalTransfer(String from, String to, long amount, String name, String title) throws AccountException {
-        Account accountFrom = getAccount(from);
+    public void saveExternalTransfer(String from, String to, long amount, String name, String title, User user) throws AccountException {
+        Account accountFrom = getAccount(from, user);
+        checkTransfer(accountFrom, amount);
         final String uri = "http://localhost:8080/accounts/" + to + "/history";
-        RequestPayload request = new RequestPayload();
-        request.setAmount(amount);
-        request.setSource_account(from);
-        request.setName(name);
-        request.setTitle(title);
-        RestTemplate restTemplate = new RestTemplate();
-        ResponsePayload result = restTemplate.getForObject(uri, ResponsePayload.class, request);
-        System.out.println(result);
+        JSONObject request = new JSONObject()
+                .put("source_account", from)
+                .put("amount", amount)
+                .put("title", title)
+                .put("name", name);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        RestTemplateBuilder builder = new RestTemplateBuilder();
+        RestTemplate restTemplate = builder.basicAuthorization("admin", "admin").build();
+        restTemplate.exchange(uri, HttpMethod.POST,  new HttpEntity<String>(request.toString(), headers),  ResponsePayload.class);
+        //ResponsePayload result = restTemplate.getForObject(uri, ResponsePayload.class, request, headers);
+
+    }
+
+    private Account getAccount(String number, User user) throws AccountException {
+        Account accountFrom = accountDao.findAccountByAccountNumberAndCredentials(number, user.getId());
+        if(accountFrom == null)
+            throw new AccountException(ERROR, new ServiceFault(MESSAGE, DESCRIPTION));
+        return accountFrom;
     }
 
     private Account getAccount(String number) throws AccountException {
@@ -98,6 +118,9 @@ public class TransferServiceImpl implements TransferService{
 
     private void changeBalanceByPayment(Account from, long amount){
         from.setBalance(from.getBalance() + amount);
+    }
+    private void changeBalanceByWithdrawal(Account from, long amount){
+        from.setBalance(from.getBalance() - amount);
     }
 
     private void checkTransfer(Account from, long amount) throws AccountException {

@@ -2,6 +2,7 @@ package bsr.rest;
 
 import bsr.exception.AccountException;
 import bsr.model.Account;
+import bsr.model.Bank;
 import bsr.model.Transfer;
 import bsr.model.TransferType;
 import bsr.services.AccountService;
@@ -21,6 +22,11 @@ public class ExternalTransferController {
 
     @RequestMapping(value = "/accounts/{accountNumber}/history", method = RequestMethod.POST)
     public ResponseEntity externalTransfer(@PathVariable String accountNumber, @RequestBody RequestPayload payload) {
+        try {
+            Bank.checkControlSum(accountNumber);
+        } catch (AccountException e) {
+            e.printStackTrace();
+        }
         Account to;
         try {
             to = accountService.getAccount(accountNumber);

@@ -30,8 +30,17 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Transfer> getAccountHistory(String accountNumber) throws AccountException {
-        Account account = getAccount(accountNumber);
+    public Account getAccount(String accountNumber, User user) throws AccountException {
+        Account account = accountDao.findAccountByAccountNumberAndCredentials(accountNumber, user.getId());
+        if(account  == null)
+            throw new AccountException("Account doesn't exists", new ServiceFault("404", "Account doesn't exists"));
+        else
+            return account;
+    }
+
+    @Override
+    public List<Transfer> getAccountHistory(String accountNumber, User user) throws AccountException {
+        Account account = getAccount(accountNumber, user);
         return transferDao.findTransferByAccountFrom(account.getAccountNumber());
     }
 

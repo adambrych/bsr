@@ -2,7 +2,7 @@ package bsr.services.impl;
 
 import bsr.dao.AccountDao;
 import bsr.dao.TransferDao;
-import bsr.exception.AccountException;
+import bsr.exception.BankException;
 import bsr.exception.ServiceFault;
 import bsr.model.Account;
 import bsr.model.Transfer;
@@ -44,7 +44,7 @@ public class TransferServiceImpl implements TransferService{
     }
 
     @Override
-    public void saveInternalTransfer(String from, String to, long amount, User user) throws AccountException {
+    public void saveInternalTransfer(String from, String to, long amount, User user) throws BankException {
 
         Account accountFrom = getAccount(from, user);
         Account accountTo = getAccount(to);
@@ -57,7 +57,7 @@ public class TransferServiceImpl implements TransferService{
     }
 
     @Override
-    public void savePayment(String from, long amount, User user) throws AccountException {
+    public void savePayment(String from, long amount, User user) throws BankException {
         Account accountFrom = getAccount(from, user);
         checkTransfer(accountFrom, amount);
         changeBalance(accountFrom, amount);
@@ -67,7 +67,7 @@ public class TransferServiceImpl implements TransferService{
     }
 
     @Override
-    public void saveWithdrawal(String from, long amount, User user) throws AccountException {
+    public void saveWithdrawal(String from, long amount, User user) throws BankException {
         Account accountFrom = getAccount(from, user);
         checkTransfer(accountFrom, amount);
         changeBalanceByWithdrawal(accountFrom, amount);
@@ -78,12 +78,12 @@ public class TransferServiceImpl implements TransferService{
 
 
     @Override
-    public void saveExternalTransfer(String from, String to, long amount, String name, String title, User user) throws AccountException {
+    public void saveExternalTransfer(String from, String to, long amount, String name, String title, User user) throws BankException {
         Account accountFrom = getAccount(from, user);
         checkTransfer(accountFrom, amount);
         String url = readCsv(to);
         if(url.equals(""))
-            throw new AccountException("ERROR", new ServiceFault("Bad Request", "Can't find external bank using destination account"));
+            throw new BankException("ERROR", new ServiceFault("Bad Request", "Can't find external bank using destination account"));
         final String uri = url + "/accounts/" + to + "/history";
         JSONObject request = new JSONObject()
                 .put("source_account", from)
@@ -101,17 +101,17 @@ public class TransferServiceImpl implements TransferService{
 
     }
 
-    private Account getAccount(String number, User user) throws AccountException {
+    private Account getAccount(String number, User user) throws BankException {
         Account accountFrom = accountDao.findAccountByAccountNumberAndCredentials(number, user.getId());
         if(accountFrom == null)
-            throw new AccountException(ERROR, new ServiceFault(MESSAGE, DESCRIPTION));
+            throw new BankException(ERROR, new ServiceFault(MESSAGE, DESCRIPTION));
         return accountFrom;
     }
 
-    private Account getAccount(String number) throws AccountException {
+    private Account getAccount(String number) throws BankException {
         Account accountFrom = accountDao.findAccountByAccountNumber(number);
         if(accountFrom == null)
-            throw new AccountException(ERROR, new ServiceFault(MESSAGE, DESCRIPTION));
+            throw new BankException(ERROR, new ServiceFault(MESSAGE, DESCRIPTION));
         return accountFrom;
     }
 
@@ -131,11 +131,11 @@ public class TransferServiceImpl implements TransferService{
         from.setBalance(from.getBalance() - amount);
     }
 
-    private void checkTransfer(Account from, long amount) throws AccountException {
+    private void checkTransfer(Account from, long amount) throws BankException {
         if(amount < 0)
-            throw new AccountException(ERROR, new ServiceFault(MESSAGE_AMOUNT, DESCRIPTION_LOWER_THAN_0));
+            throw new BankException(ERROR, new ServiceFault(MESSAGE_AMOUNT, DESCRIPTION_LOWER_THAN_0));
         if(from.getBalance() < amount)
-            throw new AccountException(ERROR, new ServiceFault(MESSAGE_AMOUNT, DESCRIPTION_AMOUNT_BALANCE));
+            throw new BankException(ERROR, new ServiceFault(MESSAGE_AMOUNT, DESCRIPTION_AMOUNT_BALANCE));
     }
 
     private String readCsv(String accountTo){

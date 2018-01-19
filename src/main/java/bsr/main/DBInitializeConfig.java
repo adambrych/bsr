@@ -10,6 +10,9 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Initialize database if not exists
+ */
 @Configuration
 public class DBInitializeConfig {
 

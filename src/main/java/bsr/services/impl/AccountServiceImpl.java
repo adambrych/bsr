@@ -2,7 +2,7 @@ package bsr.services.impl;
 
 import bsr.dao.AccountDao;
 import bsr.dao.TransferDao;
-import bsr.exception.AccountException;
+import bsr.exception.BankException;
 import bsr.exception.ServiceFault;
 import bsr.model.Account;
 import bsr.model.Transfer;
@@ -21,27 +21,27 @@ public class AccountServiceImpl implements AccountService {
     private TransferDao transferDao;
 
     @Override
-    public Account getAccount(String accountNumber) throws AccountException {
+    public Account getAccount(String accountNumber) throws BankException {
         Account account = accountDao.findAccountByAccountNumber(accountNumber);
         if(account  == null)
-            throw new AccountException("Account doesn't exists", new ServiceFault("404", "Account doesn't exists"));
+            throw new BankException("Account doesn't exists", new ServiceFault("404", "Account doesn't exists"));
         else
             return account;
     }
 
     @Override
-    public Account getAccount(String accountNumber, User user) throws AccountException {
+    public Account getAccount(String accountNumber, User user) throws BankException {
         Account account = accountDao.findAccountByAccountNumberAndCredentials(accountNumber, user.getId());
         if(account  == null)
-            throw new AccountException("Account doesn't exists", new ServiceFault("404", "Account doesn't exists"));
+            throw new BankException("Account doesn't exists", new ServiceFault("404", "Account doesn't exists"));
         else
             return account;
     }
 
     @Override
-    public List<Transfer> getAccountHistory(String accountNumber, User user) throws AccountException {
+    public List<Transfer> getAccountHistory(String accountNumber, User user) throws BankException {
         Account account = getAccount(accountNumber, user);
-        return transferDao.findTransferByAccountFrom(account.getAccountNumber());
+        return transferDao.findTransferByAccountFromOrAccountTo(account.getAccountNumber());
     }
 
     @Override

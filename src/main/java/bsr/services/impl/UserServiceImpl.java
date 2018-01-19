@@ -1,7 +1,7 @@
 package bsr.services.impl;
 
 import bsr.dao.UserDao;
-import bsr.exception.AccountException;
+import bsr.exception.BankException;
 import bsr.exception.ServiceFault;
 import bsr.model.User;
 import bsr.services.UserService;
@@ -14,18 +14,18 @@ public class UserServiceImpl implements UserService{
     UserDao userDao;
 
     @Override
-    public User getUser(String login, String password) throws AccountException {
+    public User getUser(String login, String password) throws BankException {
         User user = userDao.findByLoginAndPassword(login, password);
         if(user == null)
-            throw new AccountException("ERROR", new ServiceFault("Not found", "User with this credentials doesn't exists"));
+            throw new BankException("ERROR", new ServiceFault("Not found", "User with this credentials doesn't exists"));
         return user;
     }
 
     @Override
-    public User getUser(String token) throws AccountException {
+    public User getUser(String token) throws BankException {
         User user = userDao.findByLogin(token);
         if(user == null)
-            throw new AccountException("ERROR", new ServiceFault("Not found", "User with this token doesn't exists"));
+            throw new BankException("ERROR", new ServiceFault("Not found", "User with this token doesn't exists"));
         return user;
     }
 }

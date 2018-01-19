@@ -13,8 +13,8 @@ public class DetailSoapFaultDefinitionExceptionResolver extends SoapFaultMapping
     @Override
     protected void customizeFault(Object endpoint, Exception ex, SoapFault fault) {
         logger.warn("Exception processed ", ex);
-        if (ex instanceof AccountException) {
-            ServiceFault serviceFault = ((AccountException) ex).getServiceFault();
+        if (ex instanceof BankException) {
+            ServiceFault serviceFault = ((BankException) ex).getServiceFault();
             SoapFaultDetail detail = fault.addFaultDetail();
             detail.addFaultDetailElement(CODE).addText(serviceFault.getCode());
             detail.addFaultDetailElement(DESCRIPTION).addText(serviceFault.getDescription());

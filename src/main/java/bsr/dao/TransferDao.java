@@ -6,7 +6,15 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * Repository for transfers table
+ */
 @Repository
 public interface TransferDao extends CrudRepository<Transfer, Long> {
-    List<Transfer> findTransferByAccountFrom(String accountFrom);
+    /**
+     * find transfer by account number. Get historu
+     * @param accountFrom
+     * @return
+     */
+    List<Transfer> findTransferByAccountFromOrAccountTo(String accountFrom);
 }

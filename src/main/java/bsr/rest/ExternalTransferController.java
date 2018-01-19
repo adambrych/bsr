@@ -1,6 +1,6 @@
 package bsr.rest;
 
-import bsr.exception.AccountException;
+import bsr.exception.BankException;
 import bsr.model.Account;
 import bsr.model.Bank;
 import bsr.model.Transfer;
@@ -12,6 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Implementation of rest
+ */
 @RestController
 public class ExternalTransferController {
 
@@ -20,11 +23,17 @@ public class ExternalTransferController {
     @Autowired
     TransferService transferService;
 
+    /**
+     * Method used for make external transfer from another bank
+     * @param accountNumber
+     * @param payload
+     * @return
+     */
     @RequestMapping(value = "/accounts/{accountNumber}/history", method = RequestMethod.POST)
     public ResponseEntity externalTransfer(@PathVariable String accountNumber, @RequestBody RequestPayload payload) {
         try {
             Bank.checkControlSum(accountNumber);
-        } catch (AccountException e) {
+        } catch (BankException e) {
             e.printStackTrace();
             ResponsePayload response = new ResponsePayload("accountNumber", "Destiny account control sum not valid");
             return new ResponseEntity<ResponsePayload>(response, HttpStatus.BAD_REQUEST);
@@ -32,7 +41,7 @@ public class ExternalTransferController {
         Account to;
         try {
             to = accountService.getAccount(accountNumber);
-        } catch (AccountException e) {
+        } catch (BankException e) {
             ResponsePayload response = new ResponsePayload("nr_konta", "Destiny account doesn't exist");
             return new ResponseEntity<ResponsePayload>(response, HttpStatus.NOT_FOUND);
         }

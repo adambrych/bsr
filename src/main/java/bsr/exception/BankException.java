@@ -1,6 +1,9 @@
 package bsr.exception;
 
-public class AccountException extends Exception{
+/**
+ * Exception for bank methods
+ */
+public class BankException extends Exception{
     private ServiceFault serviceFault;
 
     public ServiceFault getServiceFault() {
@@ -11,11 +14,11 @@ public class AccountException extends Exception{
         this.serviceFault = serviceFault;
     }
 
-    public AccountException(String message){
+    public BankException(String message){
         super(message);
     }
 
-    public AccountException(String message, ServiceFault serviceFault){
+    public BankException(String message, ServiceFault serviceFault){
         super(message);
         this.serviceFault = serviceFault;
     }

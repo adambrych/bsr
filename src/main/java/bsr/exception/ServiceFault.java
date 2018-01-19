@@ -5,6 +5,10 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
+
+/**
+ * Class using in exception. Describe error
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ServiceFault", propOrder = {
         "code",

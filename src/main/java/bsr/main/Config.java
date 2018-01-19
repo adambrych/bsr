@@ -1,7 +1,7 @@
 package bsr.main;
 
 
-import bsr.exception.AccountException;
+import bsr.exception.BankException;
 import bsr.exception.DetailSoapFaultDefinitionExceptionResolver;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.ApplicationContext;
@@ -19,11 +19,19 @@ import org.springframework.xml.xsd.XsdSchema;
 
 import java.util.Properties;
 
+
+/**
+ * Configuration of web services
+ */
 @EnableWs
 @Configuration
 public class Config extends WsConfigurerAdapter
 {
 
+    /**
+     * Bean for setting exception is soap
+     * @return
+     */
     @Bean
     public SoapFaultMappingExceptionResolver exceptionResolver() {
         SoapFaultMappingExceptionResolver exceptionResolver = new DetailSoapFaultDefinitionExceptionResolver();
@@ -34,7 +42,7 @@ public class Config extends WsConfigurerAdapter
 
         Properties errorMappings = new Properties();
         errorMappings.setProperty(Exception.class.getName(), SoapFaultDefinition.SERVER.toString());
-        errorMappings.setProperty(AccountException.class.getName(), SoapFaultDefinition.SERVER.toString());
+        errorMappings.setProperty(BankException.class.getName(), SoapFaultDefinition.SERVER.toString());
         exceptionResolver.setExceptionMappings(errorMappings);
         exceptionResolver.setOrder(1);
         return exceptionResolver;
@@ -49,6 +57,11 @@ public class Config extends WsConfigurerAdapter
         return new ServletRegistrationBean(servlet, "/service/*");
     }
 
+    /**
+     * Creating bean of transfer wsdl
+     * @param transferSchema
+     * @return
+     */
     @Bean(name = "transferDetailsWsdl")
     public DefaultWsdl11Definition defaultWsdl11Definition(XsdSchema transferSchema)
     {
@@ -60,12 +73,21 @@ public class Config extends WsConfigurerAdapter
         return wsdl11Definition;
     }
 
+    /**
+     * Creating bean of xml schema for transfer endpoint
+     * @return
+     */
     @Bean
     public XsdSchema transferSchema()
     {
         return new SimpleXsdSchema(new ClassPathResource("Transfer.xsd"));
     }
 
+    /**
+     * Creating bean of account wsdl
+     * @param transferSchema
+     * @return
+     */
     @Bean(name = "accountDetailsWsdl")
     public DefaultWsdl11Definition accountWsdl11Definition(XsdSchema transferSchema)
     {
@@ -77,6 +99,10 @@ public class Config extends WsConfigurerAdapter
         return wsdl11Definition;
     }
 
+    /**
+     * Creating been of xml schema for account endpoint
+     * @return
+     */
     @Bean
     public XsdSchema accountSchema()
     {
